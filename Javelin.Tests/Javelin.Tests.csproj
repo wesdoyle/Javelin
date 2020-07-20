@@ -17,8 +17,4 @@
     <ProjectReference Include="..\Javelin\Javelin.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="IntegrationTests\TestFixtures" />
-  </ItemGroup>
-
 </Project>
