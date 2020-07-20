@@ -45,6 +45,12 @@ namespace Javelin.Tests.IntegrationTests.Search {
             
             _output.WriteLine("Inverted Index Lookup time taken : " + (invEnd - invStart));
             _output.WriteLine("Forward Index Lookup time taken : " + (fwdEnd - fwdStart));
+            
+            // Note that grepping with a forward index will give us char-level substrings -
+            // We will need to improve our linguistic preprocessing to identify instances
+            // of the tokens we're looking for.  Like "Califorinian", "California's", "California-esque"
+            // will be identified via grepping, but lost on our rudimentary indexer due to
+            // (crude) whitespace tokenization.
         }
     }
 }
