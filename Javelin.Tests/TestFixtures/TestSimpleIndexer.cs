@@ -5,7 +5,7 @@ using Javelin.Serializers;
 using Javelin.Tokenizers;
 using Xunit;
 
-namespace Javelin.Tests.IntegrationTests.Indexers {
+namespace Javelin.Tests.TestFixtures {
     public class TestSimpleIndexer {
         
         private readonly string _testDirectory = 
