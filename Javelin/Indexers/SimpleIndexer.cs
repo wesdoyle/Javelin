@@ -40,8 +40,14 @@ namespace Javelin.Indexers {
             _serializer = serializer;
         }
 
+        /// <summary>
+        /// Builds an in-memory index using a provided filePath to a zip file.
+        /// The provided filePath should be a zip archive containing text files
+        /// for index. Each file is considered a document for the posting list.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="indexName"></param>
         public void BuildIndexForArchive(string filePath, string indexName) {
-
             _invertedIndex = new SimpleInvertedIndex {
                 Index = new Dictionary<string, List<long>>()
             };
@@ -58,6 +64,20 @@ namespace Javelin.Indexers {
             WriteIndexToDisk(indexName);
         }
 
+        /// <summary>
+        /// Gets the size of the in-memory index
+        /// </summary>
+        /// <returns></returns>
+        public long GetIndexVocabularySize() => _invertedIndex.Index.Keys.Count;
+
+        /// <summary>
+        /// Indexes text data from the Stream
+        /// - Reads stream
+        /// - Tokenizes text data
+        /// - Updates the inverted index
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="docId"></param>
         private void IndexStream(Stream stream, long docId) {
             using var reader = new StreamReader(stream);
             var documentText = reader.ReadToEnd();
@@ -78,6 +98,11 @@ namespace Javelin.Indexers {
             }
         }
 
+        /// <summary>
+        /// Using the provided fileName and _serializer,
+        /// writes the currently tracked _invertedIndex to disk
+        /// </summary>
+        /// <param name="fileName"></param>
         private void WriteIndexToDisk(string fileName) {
             try {
                 _serializer.WriteToFile(fileName, _invertedIndex);
@@ -87,6 +112,11 @@ namespace Javelin.Indexers {
             }
         }
         
+        /// <summary>
+        /// Using the provided _serializer,
+        /// loads an inverted index from disk into memory
+        /// </summary>
+        /// <param name="fileName"></param>
         public void LoadIndexFromDisk(string fileName) {
             try {
                 _invertedIndex = _serializer.ReadFromFile(fileName);
