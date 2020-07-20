@@ -12,14 +12,16 @@ namespace Javelin.Search {
         private readonly ISerializer<SimpleInvertedIndex> _serializer;
         
         private SimpleInvertedIndex _inMemoryIndex;
-        private string _pathToIndex;
+        private readonly string _pathToIndex;
 
         public BooleanSearchEngine(
-            string pathToIndex,
+            string pathToIndex = null,
             ISerializer<SimpleInvertedIndex> serializer = null) {
             _pathToIndex = pathToIndex;
             _serializer = serializer ?? new BinarySerializer<SimpleInvertedIndex>();
         }
+
+        public BooleanSearchEngine() { }
 
         /// <summary>
         /// Returns a list of documentIds pointing to documents containing
