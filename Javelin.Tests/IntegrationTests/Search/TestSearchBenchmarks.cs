@@ -27,7 +27,6 @@ namespace Javelin.Tests.IntegrationTests.Search {
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
             var sut = new BooleanSearchEngine(indexOnDiskPath);
             sut.LoadIndexFromDisk();
-            var searchTerms = new List<string> {"red", "dry"};
             
             // Setup the in-memory flat (forward) index for linear search
             var rawDataOnDiskPath = Path.Join("TestFixtures", "Data.zip");
@@ -36,12 +35,12 @@ namespace Javelin.Tests.IntegrationTests.Search {
             
             // Time the in-memory inverted index search
             var invStart = DateTime.Now;
-            var invResult = sut.GetDocumentsContainingTerm("red");
+            var invResult = sut.GetDocumentsContainingTerm("california");
             var invEnd = DateTime.Now;
             
             // Time the in-memory forward index (linear) search
             var fwdStart = DateTime.Now;
-            var fwdResult = forwardIndexer.GetDocumentsContainingTerm("red");
+            var fwdResult = forwardIndexer.GetDocumentsContainingTerm(" california ");
             var fwdEnd = DateTime.Now;
             
             _output.WriteLine("Inverted Index Lookup time taken : " + (invEnd - invStart));

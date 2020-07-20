@@ -26,7 +26,7 @@ namespace Javelin.Helpers {
         public List<long> GetDocumentsContainingTerm(string term) {
             var result = new List<long>();
             foreach (var document in _forwardIndex) {
-                if (document.Value.Contains(term.ToLowerInvariant())) {
+                if (document.Value.Contains(term, StringComparison.InvariantCulture)) {
                     result.Add(document.Key);
                 }
             }
