@@ -43,10 +43,12 @@ namespace Javelin.Search {
         public List<long> IntersectionQuery(List<string> terms) {
             HashSet<long> hashSet = null;
 
+            // Get the posting lists for each term
             var postingLists = terms
                 .Select(GetDocumentsContainingTerm)
                 .Where(documents => documents.Any());
 
+            // Use C# HashSet intersection to intersect the posting lists
             foreach (var list in postingLists) {
                 if (hashSet == null) {
                     hashSet = new HashSet<long>(list);

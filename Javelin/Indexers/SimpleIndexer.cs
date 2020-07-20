@@ -50,13 +50,12 @@ namespace Javelin.Indexers {
                 Index = new Dictionary<string, List<long>>()
             };
 
-            using (var file = File.OpenRead(filePath)) {
-                using var zip = new ZipArchive(file, ZipArchiveMode.Read);
+            using var file = File.OpenRead(filePath);
+            using var zip = new ZipArchive(file, ZipArchiveMode.Read);
                 
-                for (var docId = 1; docId < zip.Entries.Count; docId++) {
-                    using var stream = zip.Entries[docId].Open();
-                    IndexStream(stream, docId);
-                }
+            for (var docId = 1; docId < zip.Entries.Count; docId++) {
+                using var stream = zip.Entries[docId].Open();
+                IndexStream(stream, docId);
             }
 
             WriteIndexToDisk(indexName);
