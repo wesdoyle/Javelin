@@ -41,11 +41,14 @@ namespace Javelin.Indexers {
         }
 
         public void BuildIndexForArchive(string filePath, string indexName) {
-            
-            _invertedIndex = new SimpleInvertedIndex();
-            
+
+            _invertedIndex = new SimpleInvertedIndex {
+                Index = new Dictionary<string, List<long>>()
+            };
+
             using (var file = File.OpenRead(filePath)) {
                 using var zip = new ZipArchive(file, ZipArchiveMode.Read);
+                
                 for (var docId = 1; docId < zip.Entries.Count; docId++) {
                     using var stream = zip.Entries[docId].Open();
                     IndexStream(stream, docId);
@@ -64,13 +67,19 @@ namespace Javelin.Indexers {
             using var reader = new StreamReader(stream);
             var documentText = reader.ReadToEnd();
             var tokens = _tokenizer.Tokenize(documentText);
-                
-            foreach (var token in tokens) {
-                if (_invertedIndex.Index.ContainsKey(token)) {
-                    _invertedIndex.Index[token].Add(docId);
-                } else {
-                    _invertedIndex.Index[token] = new List<long> { docId };
+
+            try {
+                foreach (var token in tokens) {
+                    if (_invertedIndex.Index.ContainsKey(token)) {
+                        _invertedIndex.Index[token].Add(docId);
+                    }
+                    else {
+                        _invertedIndex.Index[token] = new List<long> {docId};
+                    }
                 }
+            } catch (Exception e) {
+                Console.WriteLine("Error building index");
+                Console.WriteLine(e);
             }
         }
 
