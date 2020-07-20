@@ -9,14 +9,14 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
         
         private readonly string _testDirectory = 
             Directory.GetParent(Directory.GetCurrentDirectory())
-                .Parent?.FullName;
+                .Parent?.Parent?.FullName;
         
         [Fact]
         public void Test_SimpleIndexer_Builds_SimpleInvertedIndex() {
             var tokenizer = new SimpleTokenizer();
             var serializer = new BinarySerializer<SimpleInvertedIndex>();
             var sut = new SimpleIndexer(tokenizer, serializer);
-            sut.BuildIndexForArchive("./TestFixtures/Data.zip", Path.Join(_testDirectory, "TestIndex"));
+            sut.BuildIndexForArchive("./TestFixtures/Data.zip", Path.Join(_testDirectory, "TestFixtures", "TestIndex"));
         }
     }
 }
