@@ -1,4 +1,5 @@
 using System.IO;
+using FluentAssertions;
 using Javelin.Indexers;
 using Javelin.Serializers;
 using Javelin.Tokenizers;
@@ -12,13 +13,14 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
                 .Parent?.Parent?.FullName;
         
         [Fact]
-        public void Test_SimpleIndexer_Builds_SimpleInvertedIndex() {
+        public void Test_SimpleIndexer_VocabularySize_Is_Expected() {
             var tokenizer = new SimpleTokenizer();
             var serializer = new BinarySerializer<SimpleInvertedIndex>();
             var sut = new SimpleIndexer(tokenizer, serializer);
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
             sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexOnDiskPath);
             sut.LoadIndexFromDisk(indexOnDiskPath);
+            sut.GetIndexVocabularySize().Should().Be(19_732L);
         }
     }
 }
