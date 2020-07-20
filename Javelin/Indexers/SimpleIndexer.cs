@@ -11,6 +11,7 @@ namespace Javelin.Indexers {
     /// A rudimentary indexer 
     /// At a very high level, here is what we do to create an
     /// inverted index that we can use to make queries against:
+    /// 
     ///     1.) Collect documents to be indexed
     ///     2.) Tokenize the documents
     ///     3.) Preprocess the tokens
@@ -82,11 +83,12 @@ namespace Javelin.Indexers {
 
             try {
                 foreach (var token in tokens) {
-                    if (_invertedIndex.Index.ContainsKey(token)) {
-                        _invertedIndex.Index[token].Add(docId);
-                    }
-                    else {
-                        _invertedIndex.Index[token] = new List<long> {docId};
+                    var loweredToken = token.ToLowerInvariant();
+                    
+                    if (_invertedIndex.Index.ContainsKey(loweredToken)) {
+                        _invertedIndex.Index[loweredToken].Add(docId);
+                    } else {
+                        _invertedIndex.Index[loweredToken] = new List<long> {docId};
                     }
                 }
             } catch (Exception e) {
