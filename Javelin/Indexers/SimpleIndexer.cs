@@ -55,12 +55,7 @@ namespace Javelin.Indexers {
                 }
             }
 
-            try {
-                WriteIndexToDisk(indexName);
-            } catch (Exception e) {
-                Console.WriteLine("Error writing index to disk.");
-                Console.WriteLine(e);
-            }
+            WriteIndexToDisk(indexName);
         }
 
         private void IndexStream(Stream stream, long docId) {
@@ -84,11 +79,21 @@ namespace Javelin.Indexers {
         }
 
         private void WriteIndexToDisk(string fileName) {
-            _serializer.WriteToFile(fileName, _invertedIndex);
+            try {
+                _serializer.WriteToFile(fileName, _invertedIndex);
+            } catch (Exception e) {
+                Console.WriteLine("Error writing index to disk.");
+                Console.WriteLine(e);
+            }
         }
         
         public void LoadIndexFromDisk(string fileName) {
-            _invertedIndex = _serializer.ReadFromFile(fileName);
+            try {
+                _invertedIndex = _serializer.ReadFromFile(fileName);
+            } catch (Exception e) {
+                Console.WriteLine("Error reading index from disk.");
+                Console.WriteLine(e);
+            }
         }
     }
 }
