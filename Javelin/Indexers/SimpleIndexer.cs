@@ -8,23 +8,20 @@ using Javelin.Tokenizers;
 namespace Javelin.Indexers {
 
     /// <summary>
-    /// A rudimentary search indexer
-    /**
-    At a very high level, here is what we do to create an
-    inverted index that we can use to make queries against:
-        1.) Collect documents to be indexed
-        2.) Tokenize the documents
-        3.) Preprocess the tokens
-        4.) Create a Postings List
-        
-    In this example, we will use a relatively small number of documents
-    so that we can store the entire data structure in memory.
-    This implementation is minimal and meant to give an initial idea of
-    how a first pass at an inverted index can be constructed.
-    There is/are no linguistic preprocessing, term frequency calculation,
-    skip pointers, sorting, phrasing, compression, MapReduce, etc.
-    
-    **/
+    /// A rudimentary indexer 
+    /// At a very high level, here is what we do to create an
+    /// inverted index that we can use to make queries against:
+    ///     1.) Collect documents to be indexed
+    ///     2.) Tokenize the documents
+    ///     3.) Preprocess the tokens
+    ///     4.) Create a Postings List
+    ///     
+    /// In this example, we will use a relatively small number of documents
+    /// so that we can store the entire data structure in memory.
+    /// This implementation is minimal and meant to give an initial idea of
+    /// how a first pass at an inverted index can be constructed.
+    /// There is/are no linguistic preprocessing, term frequency calculation,
+    /// skip pointers, sorting, phrasing, compression, MapReduce, etc.
     /// </summary>
     public class SimpleIndexer : IDocumentIndexer {
         
