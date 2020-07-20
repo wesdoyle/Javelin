@@ -20,7 +20,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
             sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexOnDiskPath);
             sut.LoadIndexFromDisk(indexOnDiskPath);
-            sut.GetIndexVocabularySize().Should().Be(19_732L);
+            sut.GetIndexVocabularySize().Should().Be(17_860L);
         }
     }
 }
