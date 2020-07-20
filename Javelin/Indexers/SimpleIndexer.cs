@@ -54,8 +54,9 @@ namespace Javelin.Indexers {
 
             try {
                 WriteIndexToDisk(indexName);
-            } catch {
+            } catch (Exception e) {
                 Console.WriteLine("Error writing index to disk.");
+                Console.WriteLine(e);
             }
         }
 

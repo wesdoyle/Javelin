@@ -10,6 +10,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
             var tokenizer = new SimpleTokenizer();
             var serializer = new BinarySerializer<SimpleInvertedIndex>();
             var sut = new SimpleIndexer(tokenizer, serializer);
+            sut.BuildIndexForArchive("./TestFixtures/Data.zip", "TestIndex");
         }
     }
 }

@@ -17,4 +17,10 @@
     <ProjectReference Include="..\Javelin\Javelin.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestFixtures\Data.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
