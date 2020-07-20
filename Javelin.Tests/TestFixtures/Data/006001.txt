@@ -1,1 +1,0 @@
-This is a basic white wine with a few quirks. It smells floral and appley, and tastes quite dry and a bit sharp while carrying a candylike marshmallow note.
