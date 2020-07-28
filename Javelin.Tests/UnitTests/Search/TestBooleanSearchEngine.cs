@@ -16,13 +16,13 @@ namespace Javelin.Tests.UnitTests.Search {
         [InlineData("red", "green", 0)]
         [InlineData("green", "blue", 1)]
         public void Test_Intersection_Returns_ExpectedDocuments(string t1, string t2, long expectedCount) {
-            var index = new Dictionary<string, List<long>>() {
+            var index = new SortedDictionary<string, List<long>>() {
                  ["red"] = new List<long>{1, 2, 3, 4, 5},
                  ["blue"] = new List<long>{2, 3, 4, 7},
                  ["green"] = new List<long>{6, 7}
             };
             
-            var inMemoryIndex = new SimpleInvertedIndex { Index = index };
+            var inMemoryIndex = new IndexSegment() { Index = index };
             var sut = new BooleanSearchEngine();
             sut.LoadIndexFromMemory(inMemoryIndex);
             
@@ -34,13 +34,13 @@ namespace Javelin.Tests.UnitTests.Search {
         
         [Fact]
         public void Test_GetDocumentsContainingTerm_Returns_ExpectedDocuments() {
-            var index = new Dictionary<string, List<long>>() {
+            var index = new SortedDictionary<string, List<long>>() {
                  ["red"] = new List<long>{1, 2, 3, 4, 5},
                  ["blue"] = new List<long>{2, 3, 4, 7},
                  ["green"] = new List<long>{6, 7}
             };
             
-            var inMemoryIndex = new SimpleInvertedIndex { Index = index };
+            var inMemoryIndex = new IndexSegment() { Index = index };
             var sut = new BooleanSearchEngine();
             sut.LoadIndexFromMemory(inMemoryIndex);
 

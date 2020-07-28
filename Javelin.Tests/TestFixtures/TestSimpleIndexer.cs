@@ -15,7 +15,7 @@ namespace Javelin.Tests.TestFixtures {
         [Fact]
         public void Test_VocabularySize_Is_Expected() {
             var tokenizer = new SimpleTokenizer();
-            var serializer = new BinarySerializer<SimpleInvertedIndex>();
+            var serializer = new BinarySerializer<IndexSegment>();
             var sut = new SimpleIndexer(tokenizer, serializer);
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
             sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexOnDiskPath);

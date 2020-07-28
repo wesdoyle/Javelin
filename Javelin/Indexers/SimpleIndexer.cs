@@ -27,13 +27,13 @@ namespace Javelin.Indexers {
     public class SimpleIndexer : IDocumentIndexer {
         
         private readonly ITokenizer _tokenizer;
-        private readonly ISerializer<SimpleInvertedIndex> _serializer;
+        private readonly ISerializer<IndexSegment> _serializer;
         
-        private SimpleInvertedIndex _invertedIndex;
+        private IndexSegment _invertedIndex;
 
         public SimpleIndexer(
             ITokenizer tokenizer, 
-            ISerializer<SimpleInvertedIndex> serializer) {
+            ISerializer<IndexSegment> serializer) {
             _tokenizer = tokenizer;
             _serializer = serializer;
         }
@@ -46,8 +46,8 @@ namespace Javelin.Indexers {
         /// <param name="filePath"></param>
         /// <param name="indexName"></param>
         public void BuildIndexForArchive(string filePath, string indexName) {
-            _invertedIndex = new SimpleInvertedIndex {
-                Index = new Dictionary<string, List<long>>()
+            _invertedIndex = new IndexSegment {
+                Index = new SortedDictionary<string, List<long>>()
             };
 
             using var file = File.OpenRead(filePath);
@@ -62,7 +62,7 @@ namespace Javelin.Indexers {
         }
 
         /// <summary>
-        /// Gets the size of the in-memory index
+        /// Gets the lexicon term count of the in-memory index
         /// </summary>
         /// <returns></returns>
         public long GetIndexVocabularySize() => _invertedIndex.Index.Keys.Count;

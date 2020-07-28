@@ -6,19 +6,19 @@ using Javelin.Serializers;
 
 namespace Javelin.Search {
     /// <summary>
-    /// A minimal search engine that can query an in-memory SimpleInvertedIndex
+    /// A minimal search engine that can query an in-memory IndexSegment
     /// </summary>
     public class BooleanSearchEngine {
-        private readonly ISerializer<SimpleInvertedIndex> _serializer;
+        private readonly ISerializer<IndexSegment> _serializer;
         
-        private SimpleInvertedIndex _inMemoryIndex;
+        private IndexSegment _inMemoryIndex;
         private readonly string _pathToIndex;
 
         public BooleanSearchEngine(
             string pathToIndex = null,
-            ISerializer<SimpleInvertedIndex> serializer = null) {
+            ISerializer<IndexSegment> serializer = null) {
             _pathToIndex = pathToIndex;
-            _serializer = serializer ?? new BinarySerializer<SimpleInvertedIndex>();
+            _serializer = serializer ?? new BinarySerializer<IndexSegment>();
         }
 
         public BooleanSearchEngine() { }
@@ -79,7 +79,7 @@ namespace Javelin.Search {
         /// Sets the _inMemoryIndex to the provided index value
         /// </summary>
         /// <param name="index"></param>
-        public void LoadIndexFromMemory(SimpleInvertedIndex index) {
+        public void LoadIndexFromMemory(IndexSegment index) {
             _inMemoryIndex = index;
         }
     }
