@@ -1,6 +1,7 @@
 using System.IO;
 using FluentAssertions;
 using Javelin.Indexers;
+using Javelin.Indexers.Models;
 using Javelin.Serializers;
 using Javelin.Tokenizers;
 using Xunit;

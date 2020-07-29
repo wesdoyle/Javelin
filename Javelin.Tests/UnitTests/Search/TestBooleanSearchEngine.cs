@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
-using Javelin.Indexers;
+using Javelin.Indexers.Models;
 using Javelin.Search;
 using Xunit;
 
@@ -16,10 +16,10 @@ namespace Javelin.Tests.UnitTests.Search {
         [InlineData("red", "green", 0)]
         [InlineData("green", "blue", 1)]
         public void Test_Intersection_Returns_ExpectedDocuments(string t1, string t2, long expectedCount) {
-            var index = new SortedDictionary<string, List<long>>() {
-                 ["red"] = new List<long>{1, 2, 3, 4, 5},
-                 ["blue"] = new List<long>{2, 3, 4, 7},
-                 ["green"] = new List<long>{6, 7}
+            var index = new SortedDictionary<string, PostingList>() {
+                 ["red"] = new PostingList{ Postings =  new List<long> {1, 2, 3, 4, 5 }},
+                 ["blue"] = new PostingList{ Postings =  new List<long> {2, 3, 4, 7}},
+                 ["green"] = new PostingList{ Postings =  new List<long> {6, 7}},
             };
             
             var inMemoryIndex = new IndexSegment() { Index = index };
@@ -34,10 +34,10 @@ namespace Javelin.Tests.UnitTests.Search {
         
         [Fact]
         public void Test_GetDocumentsContainingTerm_Returns_ExpectedDocuments() {
-            var index = new SortedDictionary<string, List<long>>() {
-                 ["red"] = new List<long>{1, 2, 3, 4, 5},
-                 ["blue"] = new List<long>{2, 3, 4, 7},
-                 ["green"] = new List<long>{6, 7}
+            var index = new SortedDictionary<string, PostingList>() {
+                 ["red"] = new PostingList{ Postings =  new List<long> {1, 2, 3, 4, 5 }},
+                 ["blue"] = new PostingList{ Postings =  new List<long> {2, 3, 4, 7}},
+                 ["green"] = new PostingList{ Postings =  new List<long> {6, 7}},
             };
             
             var inMemoryIndex = new IndexSegment() { Index = index };
@@ -45,10 +45,9 @@ namespace Javelin.Tests.UnitTests.Search {
             sut.LoadIndexFromMemory(inMemoryIndex);
 
             var result = sut.GetDocumentsContainingTerm("blue");
-
             var expectedDocs = new List<long> {2, 3, 4, 7};
 
-            result.Count.Should().Be(4);
+            result.Postings.Count.Should().Be(4);
             result.Should().BeEquivalentTo(expectedDocs);
         }
     }

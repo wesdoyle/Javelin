@@ -1,4 +1,4 @@
-namespace Javelin.Indexers {
+namespace Javelin.Indexers.Interfaces {
     public interface IDocumentIndexer {
     }
 }

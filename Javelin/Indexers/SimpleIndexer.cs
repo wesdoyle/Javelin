@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using Javelin.Indexers.Interfaces;
+using Javelin.Indexers.Models;
 using Javelin.Serializers;
 using Javelin.Tokenizers;
     
@@ -29,7 +31,7 @@ namespace Javelin.Indexers {
         private readonly ITokenizer _tokenizer;
         private readonly ISerializer<IndexSegment> _serializer;
         
-        private IndexSegment _invertedIndex;
+        private IndexSegment _indexSegment;
 
         public SimpleIndexer(
             ITokenizer tokenizer, 
@@ -46,8 +48,8 @@ namespace Javelin.Indexers {
         /// <param name="filePath"></param>
         /// <param name="indexName"></param>
         public void BuildIndexForArchive(string filePath, string indexName) {
-            _invertedIndex = new IndexSegment {
-                Index = new SortedDictionary<string, List<long>>()
+            _indexSegment = new IndexSegment {
+                Index = new SortedDictionary<string, PostingList>()
             };
 
             using var file = File.OpenRead(filePath);
@@ -65,7 +67,7 @@ namespace Javelin.Indexers {
         /// Gets the lexicon term count of the in-memory index
         /// </summary>
         /// <returns></returns>
-        public long GetIndexVocabularySize() => _invertedIndex.Index.Keys.Count;
+        public long GetIndexVocabularySize() => _indexSegment.Index.Keys.Count;
 
         /// <summary>
         /// Indexes text data from the Stream
@@ -79,15 +81,13 @@ namespace Javelin.Indexers {
             using var reader = new StreamReader(stream);
             var documentText = reader.ReadToEnd();
             var tokens = _tokenizer.Tokenize(documentText);
-
             try {
                 foreach (var token in tokens) {
                     var loweredToken = token.ToLowerInvariant();
-                    
-                    if (_invertedIndex.Index.ContainsKey(loweredToken)) {
-                        _invertedIndex.Index[loweredToken].Add(docId);
+                    if (_indexSegment.Index.ContainsKey(loweredToken)) {
+                        _indexSegment.Index[loweredToken].Postings.Add(docId);
                     } else {
-                        _invertedIndex.Index[loweredToken] = new List<long> {docId};
+                        _indexSegment.Index[loweredToken] = new PostingList { Postings = new List<long> {docId }};
                     }
                 }
             } catch (Exception e) {
@@ -103,7 +103,7 @@ namespace Javelin.Indexers {
         /// <param name="fileName"></param>
         private void WriteIndexToDisk(string fileName) {
             try {
-                _serializer.WriteToFile(fileName, _invertedIndex);
+                _serializer.WriteToFile(fileName, _indexSegment);
             } catch (Exception e) {
                 Console.WriteLine("Error writing index to disk.");
                 Console.WriteLine(e);
@@ -117,7 +117,7 @@ namespace Javelin.Indexers {
         /// <param name="fileName"></param>
         public void LoadIndexFromDisk(string fileName) {
             try {
-                _invertedIndex = _serializer.ReadFromFile(fileName);
+                _indexSegment = _serializer.ReadFromFile(fileName);
             } catch (Exception e) {
                 Console.WriteLine("Error reading index from disk.");
                 Console.WriteLine(e);

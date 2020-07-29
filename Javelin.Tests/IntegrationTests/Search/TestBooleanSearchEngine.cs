@@ -30,7 +30,7 @@ namespace Javelin.Tests.IntegrationTests.Search {
 
             var result = sut.GetDocumentsContainingTerm("california");
 
-            result.Count.Should().Be(21);
+            result.Postings.Count.Should().Be(21);
         }
     }
 }

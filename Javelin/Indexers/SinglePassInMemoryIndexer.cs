@@ -1,3 +1,5 @@
+using Javelin.Indexers.Interfaces;
+using Javelin.Indexers.Models;
 using Javelin.Serializers;
 using Javelin.Tokenizers;
 

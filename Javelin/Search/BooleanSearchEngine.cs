@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Javelin.Indexers;
+using Javelin.Indexers.Models;
 using Javelin.Serializers;
 
 namespace Javelin.Search {
@@ -29,9 +30,9 @@ namespace Javelin.Search {
         /// </summary>
         /// <param name="term">The term to query</param>
         /// <returns></returns>
-        public List<long> GetDocumentsContainingTerm(string term) {
+        public PostingList GetDocumentsContainingTerm(string term) {
             try { return _inMemoryIndex.Index[term]; } 
-            catch (KeyNotFoundException e) { return new List<long>(); }
+            catch (KeyNotFoundException e) { return new PostingList(); }
         }
 
         /// <summary>
@@ -46,14 +47,14 @@ namespace Javelin.Search {
             // Get the posting lists for each term
             var postingLists = terms
                 .Select(GetDocumentsContainingTerm)
-                .Where(documents => documents.Any());
+                .Where(term => term.Postings.Any());
 
             // Use C# HashSet intersection to intersect the posting lists
             foreach (var list in postingLists) {
                 if (hashSet == null) {
-                    hashSet = new HashSet<long>(list);
+                    hashSet = new HashSet<long>(list.Postings);
                 } else {
-                    hashSet.IntersectWith(list);
+                    hashSet.IntersectWith(list.Postings);
                 }
             } 
             
