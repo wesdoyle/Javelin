@@ -45,7 +45,7 @@ namespace Javelin.Tests.UnitTests.Search {
             sut.LoadIndexFromMemory(inMemoryIndex);
 
             var result = sut.GetDocumentsContainingTerm("blue");
-            var expectedDocs = new List<long> {2, 3, 4, 7};
+            var expectedDocs = new PostingList { Postings = new List<long> {2, 3, 4, 7}};
 
             result.Postings.Count.Should().Be(4);
             result.Should().BeEquivalentTo(expectedDocs);

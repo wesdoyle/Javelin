@@ -15,10 +15,8 @@ namespace Javelin.Tests.IntegrationTests.Search {
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
             var sut = new BooleanSearchEngine(indexOnDiskPath);
             sut.LoadIndexFromDisk();
-            
             var searchTerms = new List<string> {"red", "dry"};
             var result = sut.IntersectionQuery(searchTerms);
-
             result.Count.Should().Be(84);
         }
         
@@ -27,9 +25,7 @@ namespace Javelin.Tests.IntegrationTests.Search {
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
             var sut = new BooleanSearchEngine(indexOnDiskPath);
             sut.LoadIndexFromDisk();
-
             var result = sut.GetDocumentsContainingTerm("california");
-
             result.Postings.Count.Should().Be(21);
         }
     }
