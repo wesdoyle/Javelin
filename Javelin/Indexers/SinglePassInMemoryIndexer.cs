@@ -12,27 +12,34 @@ using Javelin.Tokenizers;
 
 namespace Javelin.Indexers {
 
-    public enum SegmentFlushStrategy {
-        AllocatedMemory,
-        PostingsCount
-    }
-    
     /// <summary>
     /// Uses SPMI strategy for indexing data
     /// </summary>
     public class SinglePassInMemoryIndexer : IDocumentIndexer {
+        
+        // TODO IOptions
+        private readonly IndexerConfig _config;
+        
         private readonly ITokenizer _tokenizer;
         private readonly ISerializer<IndexSegment> _serializer;
-        private readonly IndexerConfig _config;
+        private readonly IFormatter _formatter ;
 
-        private readonly SegmentFlushStrategy SEGMENT_FLUSH_STRATEGY = SegmentFlushStrategy.AllocatedMemory;
-        
-        private readonly int MAX_POSTING_COUNT_PER_SEGMENT = 10_000;
-        private readonly long MAX_SIZE_BYTES_PER_SEGMENT = 60 * 1024 * 1024;
-
-        public SinglePassInMemoryIndexer(IndexerConfig config) {
+        public SinglePassInMemoryIndexer(
+            IndexerConfig config, 
+            ITokenizer tokenizer, 
+            ISerializer<IndexSegment> serializer) {
+            _tokenizer = tokenizer;
+            _serializer = serializer;
             _config = config;
+            _formatter = new BinaryFormatter();
         }
+        
+        /// <summary>
+        /// Gets the lexicon term count of the in-memory index
+        /// </summary>
+        /// <returns></returns>
+        public static long GetIndexVocabularySize(IndexSegment segment) => segment.Index.Keys.Count;
+        
         
         /// <summary>
         /// Indexes the provided zip archive at `filePath` and writes
@@ -59,6 +66,16 @@ namespace Javelin.Indexers {
                 FlushIndexSegment(indexName, segment);
             }
         }
+        
+        
+        /// <summary>
+        /// Merges index segments
+        /// </summary>
+        /// <param name="path"></param>
+        public void MergeIndices(string path) {
+            throw new NotImplementedException();
+        }
+        
 
         /// <summary>
         /// Returns True if a Segment Size has reached threshold, otherwise returns false
@@ -66,16 +83,17 @@ namespace Javelin.Indexers {
         /// <param name="segment"></param>
         /// <returns></returns>
         private bool IsSegmentSizeReached(IndexSegment segment) {
-            if (SEGMENT_FLUSH_STRATEGY == SegmentFlushStrategy.AllocatedMemory) {
-                return EstimateMemSize(segment) >= MAX_SIZE_BYTES_PER_SEGMENT;
+            if (_config.SEGMENT_FLUSH_STRATEGY == SegmentFlushStrategy.AllocatedMemory) {
+                return segment.SizeBytes >= _config.MAX_SIZE_BYTES_PER_SEGMENT;
             } 
             
-            if (SEGMENT_FLUSH_STRATEGY == SegmentFlushStrategy.PostingsCount) {
-                return segment.DocumentCount >= MAX_POSTING_COUNT_PER_SEGMENT;
+            if (_config.SEGMENT_FLUSH_STRATEGY == SegmentFlushStrategy.PostingsCount) {
+                return segment.DocumentCount >= _config.MAX_POSTING_COUNT_PER_SEGMENT;
             }
             
             throw new InvalidOperationException("Unknown or unspecified SEGMENT_FLUSH_STRATEGY.");
         }
+        
 
         /// <summary>
         /// Estimates the memory required to store the given `segment`
@@ -87,16 +105,11 @@ namespace Javelin.Indexers {
         /// <exception cref="NotImplementedException"></exception>
         private long EstimateMemSize(IndexSegment segment) {
             using Stream stream = new MemoryStream();
-            IFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, segment.Index);
-            return stream.Length;
+            _formatter.Serialize(stream, segment.Index);
+            var bytes = stream.Length;
+            return bytes;
         }
 
-        /// <summary>
-        /// Gets the lexicon term count of the in-memory index
-        /// </summary>
-        /// <returns></returns>
-        public static long GetIndexVocabularySize(IndexSegment segment) => segment.Index.Keys.Count;
         
         /// <summary>
         /// Using the provided fileName and _serializer,
@@ -112,6 +125,7 @@ namespace Javelin.Indexers {
             }
         }
         
+        
         /// <summary>
         /// Indexes text data from the Stream
         /// - Reads stream
@@ -124,6 +138,7 @@ namespace Javelin.Indexers {
             using var reader = new StreamReader(stream);
             var documentText = reader.ReadToEnd();
             var tokens = _tokenizer.Tokenize(documentText);
+            
             try {
                 foreach (var token in tokens) {
                     var loweredToken = token.ToLowerInvariant();
@@ -131,10 +146,14 @@ namespace Javelin.Indexers {
                         segment.Index[loweredToken].Postings.Add(docId);
                     } else {
                         segment.Index[loweredToken] = new PostingList {
-                            Postings = new List<long> {docId }
+                            Postings = new List<long> { docId }
                         };
                     }
                 }
+                
+                segment.DocumentCount++;
+                segment.SizeBytes += EstimateMemSize(segment);
+            
             } catch (Exception e) {
                 Console.WriteLine("Error building index");
                 Console.WriteLine(e);
