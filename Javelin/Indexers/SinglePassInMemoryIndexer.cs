@@ -53,17 +53,31 @@ namespace Javelin.Indexers {
             using var zip = new ZipArchive(file, ZipArchiveMode.Read);
             var docId = 0;
             var indexId = 1;
+            var fileCount = zip.Entries.Count;
             
-            // TODO: Stream
-            while (docId < zip.Entries.Count - 1) {
+            // TODO: Stream / use cancellation token to exit while loop in async method
+            while (true) {
                 var segment = new IndexSegment(indexId);
+                
                 while (!IsSegmentSizeReached(segment)) {
-                    await using var stream = zip.Entries[docId].Open();
-                    await IndexStream(stream, segment, docId);
-                    docId++;
+                    try {
+                        await using var stream = zip.Entries[docId].Open();
+                        await IndexStream(stream, segment, docId);
+                        docId++;
+                        if (docId > fileCount - 1) {
+                            break;
+                        }
+                    } catch (ArgumentOutOfRangeException e) {
+                        Console.WriteLine($"docId not found: {docId}");
+                    }
                 }
+                
                 await FlushIndexSegment(indexName, segment);
                 indexId++;
+
+                if (docId > fileCount - 1) {
+                    break;
+                }
             }
         }
         
