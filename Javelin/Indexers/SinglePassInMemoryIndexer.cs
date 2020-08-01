@@ -51,19 +51,18 @@ namespace Javelin.Indexers {
             using var file = File.OpenRead(filePath);
             using var zip = new ZipArchive(file, ZipArchiveMode.Read);
             var docId = 0;
+            var indexId = 1;
             
             // TODO: Stream
             while (docId < zip.Entries.Count) {
-                
-                var segment = new IndexSegment();
-                
+                var segment = new IndexSegment(indexId);
                 while (!IsSegmentSizeReached(segment)) {
                     docId++;
                     using var stream = zip.Entries[docId].Open();
                     IndexStream(stream, segment, docId);
                 }
-                
                 FlushIndexSegment(indexName, segment);
+                indexId++;
             }
         }
         
@@ -117,6 +116,9 @@ namespace Javelin.Indexers {
         /// </summary>
         /// <param name="fileName"></param>
         private void FlushIndexSegment(string fileName, IndexSegment segment) {
+            
+            fileName += segment.Id.ToString("X");
+            
             try {
                 _serializer.WriteToFile(fileName, segment);
             } catch (Exception e) {
