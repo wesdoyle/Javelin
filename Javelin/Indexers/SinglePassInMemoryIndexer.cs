@@ -152,7 +152,9 @@ namespace Javelin.Indexers {
                 }
                 
                 segment.DocumentCount++;
-                segment.SizeBytes += EstimateMemSize(segment);
+                
+                // TODO: How to measure efficiently at runtime
+                // segment.SizeBytes += await EstimateMemSize(segment);
             
             } catch (Exception e) {
                 Console.WriteLine("Error building index");
