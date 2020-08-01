@@ -57,9 +57,9 @@ namespace Javelin.Indexers {
             while (docId < zip.Entries.Count) {
                 var segment = new IndexSegment(indexId);
                 while (!IsSegmentSizeReached(segment)) {
-                    docId++;
                     using var stream = zip.Entries[docId].Open();
                     IndexStream(stream, segment, docId);
+                    docId++;
                 }
                 FlushIndexSegment(indexName, segment);
                 indexId++;
