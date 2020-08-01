@@ -7,8 +7,13 @@ namespace Javelin.Indexers.Models {
     /// </summary>
     [Serializable]
     public class IndexSegment {
+        public IndexSegment() {
+            Index = new SortedDictionary<string, PostingList>();
+        }
+        
         public Guid Id { get; set; }
         public long SizeBytes { get; set; }
+        public long DocumentCount { get; set; }
         public SortedDictionary<string, PostingList> Index { get; set; }
     }
     
