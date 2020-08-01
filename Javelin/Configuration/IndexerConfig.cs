@@ -15,8 +15,8 @@ namespace Javelin.Configuration {
     /// </summary>
     public class IndexerConfig {
         public long SegmentSizeBytes { get; set; }
-        public SegmentFlushStrategy SEGMENT_FLUSH_STRATEGY = SegmentFlushStrategy.AllocatedMemory;
+        public SegmentFlushStrategy SEGMENT_FLUSH_STRATEGY = SegmentFlushStrategy.PostingsCount;
         public int MAX_POSTING_COUNT_PER_SEGMENT = 10_000;
-        public Int64 MAX_SIZE_BYTES_PER_SEGMENT = 60 * 1024 * 1024;
+        public long MAX_SIZE_BYTES_PER_SEGMENT = 1024 * 1024 * 1024;
     }
 }

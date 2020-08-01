@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Javelin.Configuration;
 using Javelin.Indexers;
@@ -15,7 +16,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
                 .Parent?.Parent?.FullName;
         
         [Fact]
-        public void Test_VocabularySize_Is_Expected() {
+        public async Task Test_VocabularySize_Is_Expected() {
             var tokenizer = new SimpleTokenizer();
             var serializer = new BinarySerializer<IndexSegment>();
             
@@ -26,7 +27,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
             
             var sut = new SinglePassInMemoryIndexer(indexerConfig, tokenizer, serializer);
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
-            sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexOnDiskPath);
+            await sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexOnDiskPath);
         }
     }
 }

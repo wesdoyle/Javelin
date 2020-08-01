@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using Javelin.Configuration;
 using Javelin.Indexers.Interfaces;
 using Javelin.Indexers.Models;
@@ -47,21 +48,21 @@ namespace Javelin.Indexers {
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="indexName"></param>
-        public void BuildIndexForArchive(string filePath, string indexName) {
-            using var file = File.OpenRead(filePath);
+        public async Task BuildIndexForArchive(string filePath, string indexName) {
+            await using var file = File.OpenRead(filePath);
             using var zip = new ZipArchive(file, ZipArchiveMode.Read);
             var docId = 0;
             var indexId = 1;
             
             // TODO: Stream
-            while (docId < zip.Entries.Count) {
+            while (docId < zip.Entries.Count - 1) {
                 var segment = new IndexSegment(indexId);
                 while (!IsSegmentSizeReached(segment)) {
-                    using var stream = zip.Entries[docId].Open();
-                    IndexStream(stream, segment, docId);
+                    await using var stream = zip.Entries[docId].Open();
+                    await IndexStream(stream, segment, docId);
                     docId++;
                 }
-                FlushIndexSegment(indexName, segment);
+                await FlushIndexSegment(indexName, segment);
                 indexId++;
             }
         }
@@ -71,7 +72,7 @@ namespace Javelin.Indexers {
         /// Merges index segments
         /// </summary>
         /// <param name="path"></param>
-        public void MergeIndices(string path) {
+        public async Task MergeIndices(string path) {
             throw new NotImplementedException();
         }
         
@@ -82,15 +83,11 @@ namespace Javelin.Indexers {
         /// <param name="segment"></param>
         /// <returns></returns>
         private bool IsSegmentSizeReached(IndexSegment segment) {
-            if (_config.SEGMENT_FLUSH_STRATEGY == SegmentFlushStrategy.AllocatedMemory) {
-                return segment.SizeBytes >= _config.MAX_SIZE_BYTES_PER_SEGMENT;
-            } 
-            
-            if (_config.SEGMENT_FLUSH_STRATEGY == SegmentFlushStrategy.PostingsCount) {
-                return segment.DocumentCount >= _config.MAX_POSTING_COUNT_PER_SEGMENT;
-            }
-            
-            throw new InvalidOperationException("Unknown or unspecified SEGMENT_FLUSH_STRATEGY.");
+            return _config.SEGMENT_FLUSH_STRATEGY switch {
+                SegmentFlushStrategy.AllocatedMemory => segment.SizeBytes >= _config.MAX_SIZE_BYTES_PER_SEGMENT,
+                SegmentFlushStrategy.PostingsCount => segment.DocumentCount >= _config.MAX_POSTING_COUNT_PER_SEGMENT,
+                _ => throw new InvalidOperationException("Unknown or unspecified SEGMENT_FLUSH_STRATEGY.")
+            };
         }
         
 
@@ -98,15 +95,17 @@ namespace Javelin.Indexers {
         /// Estimates the memory required to store the given `segment`
         /// This is not the way to do this, but trying to get something
         /// simple working temporarily
+        /// 
+        /// This is way too slow to use efficiently.
+        /// TODO: How to monitor the size in MB of the segment during indexing?
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private long EstimateMemSize(IndexSegment segment) {
-            using Stream stream = new MemoryStream();
+        private async Task<long> EstimateMemSize(IndexSegment segment) {
+            await using Stream stream = new MemoryStream();
             _formatter.Serialize(stream, segment.Index);
-            var bytes = stream.Length;
-            return bytes;
+            return stream.Length;
         }
 
         
@@ -115,12 +114,11 @@ namespace Javelin.Indexers {
         /// writes the currently tracked _invertedIndex to disk
         /// </summary>
         /// <param name="fileName"></param>
-        private void FlushIndexSegment(string fileName, IndexSegment segment) {
-            
-            fileName += segment.Id.ToString("X");
+        private async Task FlushIndexSegment(string fileName, IndexSegment segment) {
+            fileName += $"_{segment.Id:X}";
             
             try {
-                _serializer.WriteToFile(fileName, segment);
+                await _serializer.WriteToFile(fileName, segment);
             } catch (Exception e) {
                 Console.WriteLine("Error writing index to disk.");
                 Console.WriteLine(e);
@@ -136,9 +134,9 @@ namespace Javelin.Indexers {
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="docId"></param>
-        private void IndexStream(Stream stream, IndexSegment segment, long docId) {
+        private async Task IndexStream(Stream stream, IndexSegment segment, long docId) {
             using var reader = new StreamReader(stream);
-            var documentText = reader.ReadToEnd();
+            var documentText = await reader.ReadToEndAsync();
             var tokens = _tokenizer.Tokenize(documentText);
             
             try {

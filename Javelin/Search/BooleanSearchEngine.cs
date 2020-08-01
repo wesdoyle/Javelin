@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Javelin.Indexers;
+using System.Threading.Tasks;
 using Javelin.Indexers.Models;
 using Javelin.Serializers;
 
@@ -67,9 +67,9 @@ namespace Javelin.Search {
         /// Using the provided _serializer,
         /// loads an inverted index from disk into memory
         /// </summary>
-        public void LoadIndexFromDisk() {
+        public async Task LoadIndexFromDisk() {
             try {
-                _inMemoryIndex = _serializer.ReadFromFile(_pathToIndex);
+                _inMemoryIndex = await _serializer.ReadFromFile(_pathToIndex);
             } catch (Exception e) {
                 Console.WriteLine("Error reading index from disk.");
                 Console.WriteLine(e);
