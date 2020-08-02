@@ -17,7 +17,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
         
         [Fact]
         public async Task Test_VocabularySize_Is_Expected() {
-            var tokenizer = new SimpleTokenizer();
+            var tokenizer = new EnglishTokenizer();
             var serializer = new BinarySerializer<IndexSegment>();
             
             var indexerConfig = new IndexerConfig {
