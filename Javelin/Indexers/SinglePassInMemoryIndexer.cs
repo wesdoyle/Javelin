@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading.Tasks;
 using Javelin.Configuration;
 using Javelin.Indexers.Interfaces;
@@ -19,7 +18,7 @@ namespace Javelin.Indexers {
     /// </summary>
     public class SinglePassInMemoryIndexer : IDocumentIndexer {
         
-        // TODO IOptions
+        // TODO IOptions and inject JSON?
         private readonly IndexerConfig _config;
         
         private readonly ITokenizer _tokenizer;
@@ -27,13 +26,12 @@ namespace Javelin.Indexers {
         private readonly IFormatter _formatter ;
 
         public SinglePassInMemoryIndexer(
-            IndexerConfig config, 
             ITokenizer tokenizer, 
             ISerializer<IndexSegment> serializer) {
             _tokenizer = tokenizer;
             _serializer = serializer;
-            _config = config;
             _formatter = new BinaryFormatter();
+            _config = new IndexerConfig();
         }
         
         /// <summary>
@@ -182,12 +180,11 @@ namespace Javelin.Indexers {
             }
         }
 
-        
+
         /// <summary>
         /// Using the provided fileName and _serializer,
         /// writes the currently tracked _invertedIndex to disk
         /// </summary>
-        /// <param name="fileName"></param>
         private async Task FlushIndexSegment(IndexSegment segment) {
             var fileName = Path.Join(_config.SEGMENT_DIRECTORY, _config.SEGMENT_PREFIX);
             fileName += $"{segment.Id:X}";
