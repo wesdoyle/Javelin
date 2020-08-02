@@ -86,35 +86,31 @@ namespace Javelin.Indexers {
                 }
 
                 var segmentPath = Path.Join(segmentsPath, SegmentPrefix);
-                
                 await FlushIndexSegment(segmentPath, segment);
-                
                 indexId++;
 
-                if (docId > fileCount - 1) {
-                    break;
-                }
+                if (docId > fileCount - 1) { break; }
             }
+
+            await MergeSegments();
         }
         
         
         /// <summary>
         /// Merges smaller segments on disk into a larger segment on disk
+        /// Copies read FileStreams to a single write FileStream using the
+        /// default buffer size, which should be approximately 81kb chunks
         /// TODO: manage segment sizes, no need to merge into single index
-        /// TODO: benchmark tradeoffs
+        /// TODO: benchmark performance with different buffer sizes
         /// </summary>
-        /// <param name="segmentDirectory">Directory on disk containing index segment files</param>
-        public async Task MergeSegments(string segmentDirectory) {
-            var path = Path.Join(segmentDirectory, "MergedIndex");
-            var segmentFiles = Directory.GetFiles(path, "IndexSegment*");
+        private async Task MergeSegments() {
+            var path = Path.Join(_config.SEGMENT_DIRECTORY, _config.MERGED_SEGMENT_PREFIX);
+            var segmentFiles = Directory.GetFiles(path, $"{_config.SEGMENT_PREFIX}*");
             
-            // Open the stream and write to it.
-            await using (FileStream writeStream = File.OpenWrite(path)) {
-                foreach (var fileName in segmentFiles) {
-                    await using (FileStream readStream = File.Open(path, FileMode.Open)) {
-                        await readStream.CopyToAsync(writeStream);
-                    }
-                }
+            await using FileStream writeStream = File.OpenWrite(path);
+            foreach (var fileName in segmentFiles) {
+                await using FileStream readStream = File.Open(fileName, FileMode.Open);
+                await readStream.CopyToAsync(writeStream);
             }
         }
         
@@ -196,7 +192,7 @@ namespace Javelin.Indexers {
         /// </summary>
         /// <param name="fileName"></param>
         private async Task FlushIndexSegment(string fileName, IndexSegment segment) {
-            fileName += $"_{segment.Id:X}";
+            fileName += $"{segment.Id:X}";
             
             try {
                 await _serializer.WriteToFile(fileName, segment);
