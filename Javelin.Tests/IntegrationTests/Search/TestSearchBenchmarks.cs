@@ -23,7 +23,7 @@ namespace Javelin.Tests.IntegrationTests.Search {
             
             // Setup the in-memory index for search
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
-            var sut = new BooleanSearchEngine(indexOnDiskPath);
+            var sut = new SimpleBooleanSearchEngine(indexOnDiskPath);
             sut.LoadIndexFromDisk();
             
             // Setup the in-memory flat (forward) index for linear search

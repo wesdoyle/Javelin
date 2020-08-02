@@ -13,7 +13,7 @@ namespace Javelin.Tests.IntegrationTests.Search {
         [Fact]
         public void Test_Intersection_Returns_ExpectedDocuments() {
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
-            var sut = new BooleanSearchEngine(indexOnDiskPath);
+            var sut = new SimpleBooleanSearchEngine(indexOnDiskPath);
             sut.LoadIndexFromDisk();
             var searchTerms = new List<string> {"red", "dry"};
             var result = sut.IntersectionQuery(searchTerms);
@@ -23,7 +23,7 @@ namespace Javelin.Tests.IntegrationTests.Search {
         [Fact]
         public void Test_GetDocumentsContainingTerm_Returns_ExpectedDocuments() {
             var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
-            var sut = new BooleanSearchEngine(indexOnDiskPath);
+            var sut = new SimpleBooleanSearchEngine(indexOnDiskPath);
             sut.LoadIndexFromDisk();
             var result = sut.GetDocumentsContainingTerm("california");
             result.Postings.Count.Should().Be(21);

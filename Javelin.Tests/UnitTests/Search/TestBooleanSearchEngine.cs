@@ -23,7 +23,7 @@ namespace Javelin.Tests.UnitTests.Search {
             };
             
             var inMemoryIndex = new IndexSegment() { Index = index };
-            var sut = new BooleanSearchEngine();
+            var sut = new SimpleBooleanSearchEngine();
             sut.LoadIndexFromMemory(inMemoryIndex);
             
             var searchTerms = new List<string> {t1, t2};
@@ -41,7 +41,7 @@ namespace Javelin.Tests.UnitTests.Search {
             };
             
             var inMemoryIndex = new IndexSegment() { Index = index };
-            var sut = new BooleanSearchEngine();
+            var sut = new SimpleBooleanSearchEngine();
             sut.LoadIndexFromMemory(inMemoryIndex);
 
             var result = sut.GetDocumentsContainingTerm("blue");

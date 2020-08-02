@@ -8,33 +8,32 @@ using System.Threading.Tasks;
 using Javelin.Configuration;
 using Javelin.Indexers.Interfaces;
 using Javelin.Indexers.Models;
-using Javelin.Indexers.Utils;
 using Javelin.Serializers;
 using Javelin.Tokenizers;
 
-namespace Javelin.Indexers {
+namespace Javelin.InMemory {
 
     /// <summary>
-    /// Uses SPIMI strategy for indexing data
+    /// Uses SPMI strategy for indexing data
     /// </summary>
     public class SinglePassInMemoryIndexer : IDocumentIndexer {
         
         // TODO IOptions and inject JSON?
         private readonly IndexerConfig _config;
 
+        private int _currentMergedSegmentId = 1;
+        
         private readonly ITokenizer _tokenizer;
         private readonly ISerializer<IndexSegment> _serializer;
         private readonly IFormatter _formatter ;
-        private readonly ISegmentMerger _segMerge;
 
         public SinglePassInMemoryIndexer(
             ITokenizer tokenizer, 
             ISerializer<IndexSegment> serializer) {
-            _config = new IndexerConfig();
             _tokenizer = tokenizer;
             _serializer = serializer;
             _formatter = new BinaryFormatter();
-            _segMerge = new SegmentMerger();
+            _config = new IndexerConfig();
         }
         
         /// <summary>
@@ -59,7 +58,7 @@ namespace Javelin.Indexers {
             while (true) {
                 var segment = new IndexSegment(indexId);
                 
-                while (!_segMerge.IsSegmentSizeReached(segment)) {
+                while (!IsSegmentSizeReached(segment)) {
                     try {
                         await using var stream = zip.Entries[docId].Open();
                         await BuildSegment(stream, segment, docId);
@@ -79,9 +78,55 @@ namespace Javelin.Indexers {
                 if (docId > fileCount - 1) { break; }
             }
 
-            await _segMerge.MergeSegments();
+            await MergeSegments();
         }
         
+        
+        /// <summary>
+        /// Merges smaller segments on disk into a larger segment on disk
+        /// Copies read FileStreams to a single write FileStream using the
+        /// default buffer size, which should be approximately 81kb chunks
+        /// TODO: manage segment sizes, no need to merge into single index
+        /// TODO: benchmark performance with different buffer sizes
+        /// </summary>
+        private async Task MergeSegments() {
+            
+            var segmentFiles = Directory.GetFiles(_config.SEGMENT_DIRECTORY, $"{_config.SEGMENT_PREFIX}*");
+            
+            var mergedSegmentPath = Path.Join(
+                _config.SEGMENT_DIRECTORY,
+                $"{_config.MERGED_SEGMENT_PREFIX}{_currentMergedSegmentId}");
+            
+            await using FileStream writeStream = File.OpenWrite(mergedSegmentPath);
+            
+            foreach (var fileName in segmentFiles) {
+                await using FileStream readStream = File.Open(fileName, FileMode.Open);
+                await readStream.CopyToAsync(writeStream);
+            }
+
+            // Currently waits for merge operation to complete before deleting segments
+            foreach (var fileName in segmentFiles) {
+                File.Delete(fileName);
+            }
+
+            _currentMergedSegmentId++;
+        }
+        
+
+        /// <summary>
+        /// Returns True if a Segment Size has reached threshold, otherwise returns false
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        private bool IsSegmentSizeReached(IndexSegment segment) {
+            return _config.SEGMENT_FLUSH_STRATEGY switch {
+                SegmentFlushStrategy.AllocatedMemory => segment.SizeBytes >= _config.MAX_SIZE_BYTES_PER_SEGMENT,
+                SegmentFlushStrategy.PostingsCount => segment.DocumentCount >= _config.MAX_POSTING_COUNT_PER_SEGMENT,
+                _ => throw new InvalidOperationException("Unknown or unspecified SEGMENT_FLUSH_STRATEGY.")
+            };
+        }
+        
+
         /// <summary>
         /// Estimates the memory required to store the given `segment`
         /// This is not the way to do this, but trying to get something

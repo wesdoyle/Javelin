@@ -5,24 +5,24 @@ using System.Threading.Tasks;
 using Javelin.Indexers.Models;
 using Javelin.Serializers;
 
-namespace Javelin.Search {
+namespace Javelin.InMemory {
     /// <summary>
     /// A minimal search engine that can query an in-memory IndexSegment
     /// </summary>
-    public class BooleanSearchEngine {
+    public class SimpleBooleanSearchEngine {
         private readonly ISerializer<IndexSegment> _serializer;
         
         private IndexSegment _inMemoryIndex;
         private readonly string _pathToIndex;
 
-        public BooleanSearchEngine(
+        public SimpleBooleanSearchEngine(
             string pathToIndex = null,
             ISerializer<IndexSegment> serializer = null) {
             _pathToIndex = pathToIndex;
             _serializer = serializer ?? new BinarySerializer<IndexSegment>();
         }
 
-        public BooleanSearchEngine() { }
+        public SimpleBooleanSearchEngine() { }
 
         /// <summary>
         /// Returns a list of documentIds pointing to documents containing
