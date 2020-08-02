@@ -20,6 +20,8 @@ namespace Javelin.Indexers {
         
         // TODO IOptions and inject JSON?
         private readonly IndexerConfig _config;
+
+        private int _currentMergedSegmentId = 1;
         
         private readonly ITokenizer _tokenizer;
         private readonly ISerializer<IndexSegment> _serializer;
@@ -99,14 +101,27 @@ namespace Javelin.Indexers {
         /// TODO: benchmark performance with different buffer sizes
         /// </summary>
         private async Task MergeSegments() {
-            var path = Path.Join(_config.SEGMENT_DIRECTORY, _config.MERGED_SEGMENT_PREFIX);
-            var segmentFiles = Directory.GetFiles(path, $"{_config.SEGMENT_PREFIX}*");
             
-            await using FileStream writeStream = File.OpenWrite(path);
+            var segmentFiles = Directory.GetFiles(_config.SEGMENT_DIRECTORY, $"{_config.SEGMENT_PREFIX}*");
+            
+            var mergedSegmentPath = Path.Join(
+                _config.SEGMENT_DIRECTORY, 
+                _config.MERGED_SEGMENT_PREFIX, 
+                _currentMergedSegmentId.ToString());
+            
+            await using FileStream writeStream = File.OpenWrite(mergedSegmentPath);
+            
             foreach (var fileName in segmentFiles) {
                 await using FileStream readStream = File.Open(fileName, FileMode.Open);
                 await readStream.CopyToAsync(writeStream);
             }
+
+            // Currently waits for merge operation to complete before deleting segments
+            foreach (var fileName in segmentFiles) {
+                File.Delete(fileName);
+            }
+
+            _currentMergedSegmentId++;
         }
         
 
