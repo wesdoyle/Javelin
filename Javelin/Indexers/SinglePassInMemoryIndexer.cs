@@ -105,9 +105,8 @@ namespace Javelin.Indexers {
             var segmentFiles = Directory.GetFiles(_config.SEGMENT_DIRECTORY, $"{_config.SEGMENT_PREFIX}*");
             
             var mergedSegmentPath = Path.Join(
-                _config.SEGMENT_DIRECTORY, 
-                _config.MERGED_SEGMENT_PREFIX, 
-                _currentMergedSegmentId.ToString());
+                _config.SEGMENT_DIRECTORY,
+                $"{_config.MERGED_SEGMENT_PREFIX}{_currentMergedSegmentId}");
             
             await using FileStream writeStream = File.OpenWrite(mergedSegmentPath);
             
