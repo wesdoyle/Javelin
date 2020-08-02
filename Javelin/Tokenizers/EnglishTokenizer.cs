@@ -24,7 +24,7 @@ namespace Javelin.Tokenizers {
         /// Substrings to remove from tokens
         /// </summary>
         private readonly string[] _removeStrings = 
-            { "@", ",", ".", ";", "\'", "!", "?", "^", "*", ")", "(", "-" };
+            { "@", ",", ".", ";", "\'", "!", "?", "^", "*", ")", "(", "-", "[", "]", "{", "}", "=", "+" };
 
         public EnglishTokenizer() {
             LoadStopWords();
