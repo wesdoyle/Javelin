@@ -40,18 +40,7 @@ namespace Javelin.Indexers {
         /// Gets the lexicon term count of the in-memory index
         /// </summary>
         /// <returns></returns>
-        public static long GetIndexVocabularySize(IndexSegment segment) => segment.Index.Keys.Count;
-
-        /// <summary>
-        /// Indexes the provided CSV file at `filePath` and writes
-        /// segmented indices to disk
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="indexName"></param>
-        /// <returns></returns>
-        public async Task BuildIndexForCsv(string filePath, string indexName) {
-            throw new NotImplementedException();
-        }
+        public static long GetSegmentVocabularySize(IndexSegment segment) => segment.Index.Keys.Count;
         
         /// <summary>
         /// Indexes the provided zip archive at `filePath` and writes
