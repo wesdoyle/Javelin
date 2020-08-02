@@ -10,10 +10,6 @@ using Xunit;
 namespace Javelin.Tests.IntegrationTests.Indexers {
     public class TestSPIMI {
         
-        private readonly string _testDirectory = 
-            Directory.GetParent(Directory.GetCurrentDirectory())
-                .Parent?.Parent?.FullName;
-        
         [Fact]
         public async Task Test_VocabularySize_Is_Expected() {
             var tokenizer = new EnglishTokenizer();
@@ -25,8 +21,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
             };
             
             var sut = new SinglePassInMemoryIndexer(indexerConfig, tokenizer, serializer);
-            var indexSegmentsPath = Path.Join(_testDirectory, "TestFixtures");
-            await sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexSegmentsPath);
+            await sut.BuildIndexForArchive("./TestFixtures/Data.zip");
         }
     }
 }

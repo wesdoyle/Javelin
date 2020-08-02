@@ -26,8 +26,6 @@ namespace Javelin.Indexers {
         private readonly ISerializer<IndexSegment> _serializer;
         private readonly IFormatter _formatter ;
 
-        private const string SegmentPrefix = "IndexSegment_";
-
         public SinglePassInMemoryIndexer(
             IndexerConfig config, 
             ITokenizer tokenizer, 
@@ -60,8 +58,7 @@ namespace Javelin.Indexers {
         /// segmented indices to disk
         /// </summary>
         /// <param name="filePath"></param>
-        /// <param name="segmentsPath"></param>
-        public async Task BuildIndexForArchive(string filePath, string segmentsPath) {
+        public async Task BuildIndexForArchive(string filePath) {
             await using var file = File.OpenRead(filePath);
             using var zip = new ZipArchive(file, ZipArchiveMode.Read);
             var docId = 0;
@@ -85,8 +82,8 @@ namespace Javelin.Indexers {
                     }
                 }
 
-                var segmentPath = Path.Join(segmentsPath, SegmentPrefix);
-                await FlushIndexSegment(segmentPath, segment);
+                await FlushIndexSegment(segment);
+                
                 indexId++;
 
                 if (docId > fileCount - 1) { break; }
@@ -191,7 +188,8 @@ namespace Javelin.Indexers {
         /// writes the currently tracked _invertedIndex to disk
         /// </summary>
         /// <param name="fileName"></param>
-        private async Task FlushIndexSegment(string fileName, IndexSegment segment) {
+        private async Task FlushIndexSegment(IndexSegment segment) {
+            var fileName = Path.Join(_config.SEGMENT_DIRECTORY, _config.SEGMENT_PREFIX);
             fileName += $"{segment.Id:X}";
             
             try {
