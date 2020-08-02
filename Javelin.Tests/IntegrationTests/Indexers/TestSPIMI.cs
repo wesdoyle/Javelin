@@ -10,6 +10,10 @@ using Javelin.Tokenizers;
 using Xunit;
 
 namespace Javelin.Tests.IntegrationTests.Indexers {
+    
+    /// <summary>
+    /// Integration tests for the SPIMI
+    /// </summary>
     public class TestSPIMI {
         
         private readonly IndexerConfig _config = new IndexerConfig();

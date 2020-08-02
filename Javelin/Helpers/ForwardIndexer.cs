@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace Javelin.Helpers {
+    /// <summary>
+    /// Builds naturally ordered collections of DocId => Document 
+    /// </summary>
     public class ForwardIndexer {
         
         private readonly Dictionary<long, string> _forwardIndex = new Dictionary<long, string>();
@@ -23,14 +27,15 @@ namespace Javelin.Helpers {
             }
         }
 
-        public List<long> GetDocumentsContainingTerm(string term) {
-            var result = new List<long>();
-            foreach (var document in _forwardIndex) {
-                if (document.Value.Contains(term, StringComparison.InvariantCulture)) {
-                    result.Add(document.Key);
-                }
-            }
-            return result;
+        /// <summary>
+        /// Linear search for an exact substring through the forward index
+        /// </summary>
+        /// <param name="term"></param>
+        /// <returns></returns>
+        public IEnumerable<long> GetDocumentsContainingTerm(string term) {
+            return _forwardIndex
+                .Where(document => document.Value.Contains(term, StringComparison.InvariantCulture))
+                .Select(document => document.Key).ToList();
         }
         
         
