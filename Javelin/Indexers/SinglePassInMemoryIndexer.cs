@@ -140,8 +140,7 @@ namespace Javelin.Indexers {
 
 
         /// <summary>
-        /// Using the provided fileName and _serializer,
-        /// writes the currently tracked _invertedIndex to disk
+        /// Writes the IndexSegment instance to disk
         /// </summary>
         private async Task FlushIndexSegment(IndexSegment segment) {
             var fileName = Path.Join(_config.SEGMENT_DIRECTORY, _config.SEGMENT_PREFIX);
