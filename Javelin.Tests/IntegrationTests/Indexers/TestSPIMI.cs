@@ -25,8 +25,8 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
             };
             
             var sut = new SinglePassInMemoryIndexer(indexerConfig, tokenizer, serializer);
-            var indexOnDiskPath = Path.Join(_testDirectory, "TestFixtures", "TestIndex");
-            await sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexOnDiskPath);
+            var indexSegmentsPath = Path.Join(_testDirectory, "TestFixtures");
+            await sut.BuildIndexForArchive("./TestFixtures/Data.zip", indexSegmentsPath);
         }
     }
 }
