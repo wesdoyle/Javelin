@@ -7,11 +7,7 @@ namespace Javelin.Tokenizers {
     /// A simple Tokenizer, barely makes ends meet 
     /// </summary>
     public class EnglishTokenizer : ITokenizer {
-        
-        /// <summary>
-        /// Location of English stopwords file on disk
-        /// </summary>
-        private const string StopWordsPath = "stopwords.txt";
+        private static readonly string StopWordsPath = Path.Join("Tokenizers", "stopwords.txt");
 
         /// <summary>
         /// Set of English stopwords

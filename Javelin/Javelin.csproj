@@ -12,9 +12,9 @@
 
   <ItemGroup>
     <None Remove="Tokenizers\stopwords.txt" />
-    <EmbeddedResource Include="Tokenizers\stopwords.txt">
+    <Content Include="Tokenizers\stopwords.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    </Content>
   </ItemGroup>
 
 </Project>

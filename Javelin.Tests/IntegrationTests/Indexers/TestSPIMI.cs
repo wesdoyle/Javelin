@@ -1,6 +1,5 @@
 using System.IO;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Javelin.Configuration;
 using Javelin.Indexers;
 using Javelin.Indexers.Models;
@@ -22,7 +21,7 @@ namespace Javelin.Tests.IntegrationTests.Indexers {
             
             var indexerConfig = new IndexerConfig {
                 SEGMENT_FLUSH_STRATEGY = SegmentFlushStrategy.AllocatedMemory,
-                MAX_SIZE_BYTES_PER_SEGMENT = 60 * 1024 * 1024
+                MAX_SIZE_BYTES_PER_SEGMENT = 60 * 1024 * 1024 // 60 MB
             };
             
             var sut = new SinglePassInMemoryIndexer(indexerConfig, tokenizer, serializer);
